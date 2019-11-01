@@ -1,0 +1,29 @@
+---
+
+- name: To start Voting app with Docker
+  hosts: localhost
+
+  tasks:
+    -
+      name: Checking for docker installation
+      shell: "docker -v | cut -d ' ' -f 3 | cut -d ',' -f 1"
+      register: dockeroutput
+    -
+      name: Checking for docker-compose installation
+      shell: "docker-compose -v | cut -d ' ' -f 3 | cut -d ',' -f 1"
+      register: composeoutput
+    -
+      command: "{{ item }}"
+      name: Starting {{ app_name }} container
+      with_items:
+      - "docker-compose -f docker-compose.yml up -d"
+      ignore_errors: false
+      when: "action == \"start\""
+    
+    -
+      command: "{{ item }}"
+      name: Stopping {{ app_name }} container
+      with_items:
+      - "docker-compose -f docker-compose.yml down -v"
+      ignore_errors: false
+      when: "action == \"stop\""
